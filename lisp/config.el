@@ -9,6 +9,7 @@
 (require 'options)
 (require 'keymaps)
 (require 'autocmds)
+(require 'packages)
 
 (provide 'config)
 ;;; config.el ends here

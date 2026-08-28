@@ -5,6 +5,7 @@
 ;; here.  Currently empty — no plugins configured yet.
 
 ;;; Code:
+(require 'evil-config)
 
 (provide 'plugins)
 ;;; plugins.el ends here

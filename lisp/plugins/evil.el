@@ -1,0 +1,10 @@
+;;; evil.el --- Evil mode -*- lexical-binding: t; -*-
+(use-package evil
+  :init
+  (setq evil-want-integration t
+        evil-want-keybinding nil)
+  :config
+  (evil-mode 1))
+
+(provide 'evil-config)   ; avoid clashing with the `evil` package's own feature name
+;;; evil.el ends here
