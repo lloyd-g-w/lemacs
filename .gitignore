@@ -2,3 +2,8 @@ result
 result-*
 .direnv/
 *.elc
+
+# Emacs autosave / lock / backup files
+\#*\#
+.\#*
+*~
