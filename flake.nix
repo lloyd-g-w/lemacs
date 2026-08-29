@@ -27,6 +27,12 @@
         # `nix build` / consumed as a package.
         packages.default = emacs;
         packages.emacs = emacs;
+        # Everything-included variant: full LSP/formatter toolchain on
+        # PATH (>10GB of store paths — opt-in for a reason).
+        packages.emacs-full = import ./emacs.nix {
+          inherit pkgs;
+          fullToolchain = true;
+        };
 
         # `nix run` starts Emacs with the config applied.
         apps.default = {

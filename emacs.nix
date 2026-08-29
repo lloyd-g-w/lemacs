@@ -1,6 +1,12 @@
 # Emacs wrapped with whatever packages you list below on its PATH
 # (LSP servers, ripgrep, formatters, ...). Edit the list directly.
 #
+# `fullToolchain` (default false): the complete lim2-style toolchain of
+# LSP servers and formatters is >10GB in the store (haskell-language-server
+# and friends), so the default build carries only the lightweight
+# essentials. `nix build .#emacs-full` opts into everything; anything the
+# wrapper doesn't provide is still picked up from your interactive PATH.
+#
 # `bakeConfig` (default true): copy early-init.el/init.el/lisp into the
 # Nix store and force Emacs to use it via `--init-directory`, producing
 # a fully self-contained, portable emacs.
@@ -12,53 +18,59 @@
 {
   pkgs,
   bakeConfig ? true,
+  fullToolchain ? false,
 }: let
-  extraPackages = with pkgs; [
-    ripgrep
-    fd
-    git
+  extraPackages = with pkgs;
+    [
+      ripgrep
+      fd
+      git
 
-    # copilot.el runs its bundled language server with `node`.
-    nodejs
+      # copilot.el runs its bundled language server with `node`.
+      nodejs
 
-    # treesit-auto compiles tree-sitter grammars at runtime; needs a C
-    # compiler on PATH.
-    gcc
+      # treesit-auto compiles tree-sitter grammars at runtime; needs a C
+      # compiler on PATH.
+      gcc
 
-    nixd
-    lua-language-server
-    texlab
-    basedpyright
-    typescript-language-server
-    svelte-language-server
-    csharp-ls
-    cmake-language-server
-    tailwindcss-language-server
-    tinymist
-    rust-analyzer
-    zls
-    haskell-language-server
-    ocaml
-    ocamlPackages.ocaml-lsp
-    jdt-language-server
+      # Nix tooling stays in the lean set: this repo itself is the one
+      # project always being edited with this Emacs.
+      nixd
+      alejandra
+    ]
+    ++ pkgs.lib.optionals fullToolchain [
+      lua-language-server
+      texlab
+      basedpyright
+      typescript-language-server
+      svelte-language-server
+      csharp-ls
+      cmake-language-server
+      tailwindcss-language-server
+      tinymist
+      rust-analyzer
+      zls
+      haskell-language-server
+      ocaml
+      ocamlPackages.ocaml-lsp
+      jdt-language-server
 
-    # clang-tools also bundles clangd, but (as in lim2) it's only used
-    # here for clang-format — a separately-installed clangd resolves
-    # stdlib headers more reliably as an LSP source.
-    clang-tools
+      # clang-tools also bundles clangd, but (as in lim2) it's only used
+      # here for clang-format — a separately-installed clangd resolves
+      # stdlib headers more reliably as an LSP source.
+      clang-tools
 
-    tex-fmt
-    rustfmt
-    markdownlint-cli
-    alejandra
-    yq-go
-    black
-    jq
-    stylua
-    astyle
-    prettier
-    ocamlPackages.ocamlformat
-  ];
+      tex-fmt
+      rustfmt
+      markdownlint-cli
+      yq-go
+      black
+      jq
+      stylua
+      astyle
+      prettier
+      ocamlPackages.ocamlformat
+    ];
 
   # early-init.el + init.el + lisp/ only — this is what gets pointed
   # at by --init-directory so `load`/`require` can find lisp/config,

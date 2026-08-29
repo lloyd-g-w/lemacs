@@ -10,9 +10,17 @@
 
 (use-package yasnippet
   :init
-  (let ((local-snippets (expand-file-name "snippets" user-emacs-directory)))
-    (when (file-directory-p local-snippets)
-      (setq yas-snippet-dirs (list local-snippets))))
+  ;; yas's default dir lives inside user-emacs-directory, which is a
+  ;; read-only store path under `nix run` — yas-global-mode would try to
+  ;; create it and die.  Personal snippets go in a writable cache dir;
+  ;; a repo-local snippets/ dir is picked up read-only when present.
+  (let ((cache-snippets (expand-file-name "lemacs/snippets"
+                                          (or (getenv "XDG_CACHE_HOME") "~/.cache")))
+        (repo-snippets (expand-file-name "snippets" user-emacs-directory)))
+    (make-directory cache-snippets t)
+    (setq yas-snippet-dirs
+          (delq nil (list cache-snippets
+                          (and (file-directory-p repo-snippets) repo-snippets)))))
   :config
   (yas-global-mode 1))
 
