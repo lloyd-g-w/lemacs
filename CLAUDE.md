@@ -10,9 +10,11 @@ same flake shape, same `bakeConfig` toggle, same Home Manager module pattern, ju
 Emacs instead of Neovim. There is no application build/test/lint pipeline — the "build" is
 producing a working `emacs` binary, and the way to verify a change is to run it.
 
-As of now, no actual editor configuration has been written yet — only the Nix packaging and
-an empty `lisp/` file layout exist. Config should be added under `lisp/config/*.el` and
-`lisp/plugins/*.el`, then required from `lisp/config.el` / `lisp/plugins.el` respectively.
+The config targets functional/keybind parity with `lim2`: evil-mode with a SPC leader,
+eglot for LSP, corfu/vertico/consult for completion, magit/avy/dired for the
+git/motion/filesystem trio lim2 covers with lazygit/flash.nvim/oil.nvim, etc. New config
+goes under `lisp/config/*.el` and `lisp/plugins/*.el`, required from `lisp/config.el` /
+`lisp/plugins.el` respectively.
 
 ## Commands
 
@@ -31,12 +33,19 @@ full Nix rebuild, run `emacs --init-directory .` from the repo root.
 - `early-init.el` — runs before `package.el` and the UI are initialized. Empty stub for now.
 - `init.el` — entry point. Adds `lisp/`, `lisp/config/`, and `lisp/plugins/` to `load-path`,
   then `(require 'config)` and `(require 'plugins)`.
-- `lisp/config.el` — aggregates `lisp/config/*.el` (currently `options`, `keymaps`,
-  `autocmds`, all empty stubs). Add new config areas as new `lisp/config/*.el` files and
-  require them here.
-- `lisp/plugins.el` — aggregates `lisp/plugins/*.el`. Currently empty — no plugins
-  configured yet. Add new plugin areas as new `lisp/plugins/*.el` files and require them
-  here, mirroring `lim2`'s `lua/plugins/*.lua` split (lsp, completion, ui, etc.).
+- `lisp/config.el` — aggregates `lisp/config/*.el`: `packages` (package.el +
+  use-package bootstrap, `use-package-always-ensure t`, MELPA), `options`, `keymaps`,
+  `autocmds`.
+- `lisp/plugins.el` — aggregates `lisp/plugins/*.el`, in load-bearing order:
+  `evil-config` → `theme` → `lemacs-completion` → `lemacs-search` → `lemacs-lsp` →
+  `lemacs-snippets` → `lemacs-ui` → `lemacs-misc`, mirroring `lim2`'s `lua/plugins/*.lua`
+  split. `evil-config.el` must load first: it enables `evil-mode` and defines
+  `lemacs-leader-map` (bound to `SPC` in normal/visual state, with `c`/`d`/`f`/`g`
+  prefixes for Code/Diagnostics/Find/Git), which every later module binds into via
+  `(define-key lemacs-leader-map (kbd "g g") #'magit-status)` and friends. Files other
+  than `evil-config`/`theme` are prefixed `lemacs-` (e.g. `lemacs-misc.el`, not
+  `misc.el`) so their `provide`d feature names can't shadow Emacs's own built-in
+  features of the same name.
 - `emacs.nix` — wraps `pkgs.emacs` with `extraPackages` (LSP servers, formatters, ripgrep,
   etc.) on PATH via `makeWrapper`. Has a `bakeConfig` toggle:
   - `bakeConfig = true` (default; used by `nix run`/`nix build`/devShell): copies

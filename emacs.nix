@@ -18,9 +18,46 @@
     fd
     git
 
-    # Uncomment / extend as the config grows, e.g.:
-    # nixd
-    # lua-language-server
+    # copilot.el runs its bundled language server with `node`.
+    nodejs
+
+    # treesit-auto compiles tree-sitter grammars at runtime; needs a C
+    # compiler on PATH.
+    gcc
+
+    nixd
+    lua-language-server
+    texlab
+    basedpyright
+    typescript-language-server
+    svelte-language-server
+    csharp-ls
+    cmake-language-server
+    tailwindcss-language-server
+    tinymist
+    rust-analyzer
+    zls
+    haskell-language-server
+    ocaml
+    ocamlPackages.ocaml-lsp
+    jdt-language-server
+
+    # clang-tools also bundles clangd, but (as in lim2) it's only used
+    # here for clang-format — a separately-installed clangd resolves
+    # stdlib headers more reliably as an LSP source.
+    clang-tools
+
+    tex-fmt
+    rustfmt
+    markdownlint-cli
+    alejandra
+    yq-go
+    black
+    jq
+    stylua
+    astyle
+    prettier
+    ocamlPackages.ocamlformat
   ];
 
   # early-init.el + init.el + lisp/ only — this is what gets pointed

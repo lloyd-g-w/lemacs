@@ -6,10 +6,12 @@
 
 ;;; Code:
 
+;; packages first: it bootstraps use-package, which everything after
+;; (including lisp/plugins/*) depends on.
+(require 'packages)
 (require 'options)
 (require 'keymaps)
 (require 'autocmds)
-(require 'packages)
 
 (provide 'config)
 ;;; config.el ends here
