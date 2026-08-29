@@ -31,7 +31,8 @@
     fileset = pkgs.lib.fileset.unions [./early-init.el ./init.el ./lisp];
   };
 
-  base = pkgs.emacs;
+  # Use native Wayland on compositors such as Niri instead of XWayland.
+  base = pkgs.emacs-pgtk;
 in
   pkgs.symlinkJoin {
     name = "emacs";
