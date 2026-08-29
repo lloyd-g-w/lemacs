@@ -26,17 +26,23 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
 
-;; MELPA rebuilds package tars continuously; a stale local archive index
-;; makes installs 404 ("doom-modeline-...tar: Not found").  Refresh the
-;; index when it's missing or older than a day so first-time installs of
-;; newly-added packages don't hit dead links.
-(let ((archive (expand-file-name "archives/melpa/archive-contents" package-user-dir)))
-  (when (or (not (file-exists-p archive))
-            (> (float-time (time-subtract (current-time)
-                                          (file-attribute-modification-time
-                                           (file-attributes archive))))
-               86400))
-    (ignore-errors (package-refresh-contents))))
+;; MELPA rebuilds package tars continuously, so even an hours-old local
+;; archive index can 404 on install ("doom-modeline-...tar: Not found").
+;; Time-based refreshing can't fully close that window — instead, when an
+;; install actually fails, refresh the index once and retry.
+(defun lemacs--package-install-with-refresh (orig pkg &rest args)
+  "Around advice for `package-install': on failure, refresh archives and retry."
+  (condition-case nil
+      (apply orig pkg args)
+    (error
+     (package-refresh-contents)
+     (apply orig pkg args))))
+(advice-add 'package-install :around #'lemacs--package-install-with-refresh)
+
+;; Still refresh a missing index up front (first boot on a new machine).
+(unless (file-exists-p
+         (expand-file-name "archives/melpa/archive-contents" package-user-dir))
+  (ignore-errors (package-refresh-contents)))
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
