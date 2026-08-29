@@ -6,6 +6,7 @@
 
 ;;; Code:
 (require 'evil-config)
+(require 'theme)
 
 (provide 'plugins)
 ;;; plugins.el ends here

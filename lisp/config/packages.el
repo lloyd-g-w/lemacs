@@ -1,4 +1,6 @@
 (setq package-user-dir (expand-file-name "elpa" "~/.cache/lemacs"))
+(setq package-quickstart-file
+      (expand-file-name "package-quickstart.el" "~/.cache/lemacs"))
 ;; or: (expand-file-name "elpa" (or (getenv "XDG_CACHE_HOME") "~/.cache"))
 
 (require 'package)
